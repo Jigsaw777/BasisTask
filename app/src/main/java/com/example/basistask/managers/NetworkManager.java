@@ -1,6 +1,8 @@
 package com.example.basistask.managers;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -20,9 +22,11 @@ public class NetworkManager {
 //    public RetrofitManager retrofitManager;
     public RetrofitManagerNew retrofitManagerNew;
     private MutableLiveData<List<DatumResponseModelClass>> dataList=new MutableLiveData<>();
+    private Context appContext;
 
-    public NetworkManager(){
+    public NetworkManager(Context appContext){
         retrofitManagerNew=new RetrofitManagerNew();
+        this.appContext=appContext;
     }
 
     public MutableLiveData<List<DatumResponseModelClass>> getDataList(){
@@ -40,7 +44,12 @@ public class NetworkManager {
                     public void onNext(Response<DataResponseModel> dataResponseModelResponse) {
                         if(dataResponseModelResponse.code() == 200){
                             Log.v("NetworkManager","200 returned");
-                            dataList.postValue(dataResponseModelResponse.body().getData());
+                            if(dataResponseModelResponse.body() == null){
+                                Toast.makeText(appContext,"Unable to fetch data",Toast.LENGTH_LONG).show();
+                            }
+                            else{
+                                dataList.postValue(dataResponseModelResponse.body().getData());
+                            }
                         }
                         else{
                             Log.v("NetworkManager","error code : "+dataResponseModelResponse.code());

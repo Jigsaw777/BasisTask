@@ -10,4 +10,7 @@
     <dimen name="text_size_17sp">17sp</dimen>
     <dimen name="text_size_20sp">20sp</dimen>
     <dimen name="text_size_24sp">24sp</dimen>
+
+    <dimen name="progressBarRadius">450dip</dimen>
+    <dimen name="progressFillerRadius">200dp</dimen>
 </resources>

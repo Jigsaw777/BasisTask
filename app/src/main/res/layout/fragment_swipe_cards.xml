@@ -8,6 +8,14 @@
     tools:context=".views.SwipeCardsFragment"
     android:padding="@dimen/padding_24dp">
 
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressTracker"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_marginTop="@dimen/margin_15dp"
+        android:progressDrawable="@drawable/custom_progress_bar" />
+
   <com.yuyakaido.android.cardstackview.CardStackView
       android:layout_width="match_parent"
       android:layout_height="0dp"

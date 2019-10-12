@@ -20,7 +20,7 @@ public class SwipeViewModel extends AndroidViewModel {
 
     public SwipeViewModel(@NonNull Application application) {
         super(application);
-        networkManager=new NetworkManager();
+        networkManager=new NetworkManager(application.getApplicationContext());
     }
 
 //    public LiveData<DataResponseModel> getDataListLiveData(){

@@ -1,8 +1,10 @@
 package com.example.basistask.views;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -16,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.basistask.R;
@@ -23,6 +26,7 @@ import com.example.basistask.adapters.RecyclerViewAdapter;
 import com.example.basistask.data.remote.modelClasses.DataResponseModel;
 import com.example.basistask.data.remote.modelClasses.DatumResponseModelClass;
 import com.example.basistask.interfaces.FragmentCommunication;
+import com.example.basistask.utils.Constants;
 import com.example.basistask.viewmodels.SwipeViewModel;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackListener;
@@ -33,6 +37,8 @@ import com.yuyakaido.android.cardstackview.SwipeAnimationSetting;
 
 import java.util.List;
 import java.util.Objects;
+
+import static com.yuyakaido.android.cardstackview.Direction.*;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,6 +54,9 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
     private CardStackLayoutManager cardStackLayoutManager;
     private RecyclerViewAdapter recyclerViewAdapter;
     ProgressDialog progressDialog;
+    ProgressBar progressBar;
+
+    private int dataSize=0;
 
     private int cardPos=0;
 
@@ -78,6 +87,7 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
         accept=v.findViewById(R.id.accept_button);
         reject=v.findViewById(R.id.reject_button);
         rewind=v.findViewById(R.id.rewind_button);
+        progressBar=v.findViewById(R.id.progressTracker);
         refreshBeg=v.findViewById(R.id.refresh_beginning_button);
         cardStackView=v.findViewById(R.id.swipe_cards);
         cardStackLayoutManager=new CardStackLayoutManager(appContext,this);
@@ -85,7 +95,7 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
         cardStackLayoutManager.setStackFrom(StackFrom.Top);
         cardStackView.setLayoutManager(cardStackLayoutManager);
         progressDialog=new ProgressDialog(appContext);
-        progressDialog.setMessage("Loading ..... ");
+        progressDialog.setMessage("Fetching data ..... ");
 
         accept.setOnClickListener(this);
         reject.setOnClickListener(this);
@@ -109,13 +119,14 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
         public void onChanged(List<DatumResponseModelClass> list) {
             if(!list.isEmpty()){
                 progressDialog.dismiss();
+                setupProgressBar(list.size());
+                dataSize=list.size();
                 Log.v("SwipeCardsFrag","Response observed");
                 recyclerViewAdapter=new RecyclerViewAdapter(appContext,list);
                 cardStackView.setAdapter(recyclerViewAdapter);
                 cardPos=cardStackLayoutManager.getTopPosition();
             }
             else {
-//                Log.v("SwipecardsFrag","data : "+dataResponseModel.getData().size());
                 progressDialog.dismiss();
                 Toast.makeText(appContext,"Error fetching data",Toast.LENGTH_LONG).show();
             }
@@ -126,13 +137,13 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.accept_button:
-                SwipeAnimationSetting settingRight = new SwipeAnimationSetting.Builder().setDirection(Direction.Right).build();
+                SwipeAnimationSetting settingRight = new SwipeAnimationSetting.Builder().setDirection(Right).build();
                 cardStackLayoutManager.setSwipeAnimationSetting(settingRight);
                 cardStackView.swipe();
                 break;
 
             case R.id.reject_button:
-                SwipeAnimationSetting settingLeft = new SwipeAnimationSetting.Builder().setDirection(Direction.Left).build();
+                SwipeAnimationSetting settingLeft = new SwipeAnimationSetting.Builder().setDirection(Left).build();
                 cardStackLayoutManager.setSwipeAnimationSetting(settingLeft);
                 cardStackView.swipe();
                 break;
@@ -143,6 +154,7 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
 
             case R.id.refresh_beginning_button:
                 cardStackView.smoothScrollToPosition(0);
+                setProgress(0);
                 break;
         }
     }
@@ -154,12 +166,17 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void onCardSwiped(Direction direction) {
-
+        setProgress(cardPos+1);
+        cardPos=cardStackLayoutManager.getTopPosition();
+        if(cardPos == dataSize){
+            showDialogBox();
+        }
     }
 
     @Override
     public void onCardRewound() {
-
+        cardPos=cardStackLayoutManager.getTopPosition();
+        setProgress(cardPos);
     }
 
     @Override
@@ -175,5 +192,31 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCardDisappeared(View view, int position) {
 
+    }
+
+    private void setupProgressBar(int size){
+        Log.v("SwipeCardsFragment","size of progressBar : "+size*10);
+        progressBar.setMax(size*10);
+    }
+
+    private void setProgress(int n){
+        Log.v("SwipeCardsFragment","setProgress : "+n*10);
+        progressBar.setProgress(n*10);
+    }
+
+    private void showDialogBox(){
+        AlertDialog.Builder alertDialogBuilder= new AlertDialog.Builder(appContext);
+        alertDialogBuilder.setTitle("Cards are over");
+        alertDialogBuilder.setMessage("You will be redirected to home screen");
+        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                fragmentCommunication.startFragment(Constants.WELCOME_FRAGMENT);
+            }
+        });
+
+        AlertDialog alertDialog=alertDialogBuilder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
     }
 }
