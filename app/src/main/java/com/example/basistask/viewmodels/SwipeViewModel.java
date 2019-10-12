@@ -1,6 +1,7 @@
 package com.example.basistask.viewmodels;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -26,6 +27,7 @@ public class SwipeViewModel extends AndroidViewModel {
     }
 
     public void getData(){
+        Log.v("SwipeViewModel","getData method");
         networkManager.getDataList(dataList);
     }
 }

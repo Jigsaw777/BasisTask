@@ -1,5 +1,7 @@
 package com.example.basistask.managers;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -12,15 +14,15 @@ import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 
 public class NetworkManager {
-    public RetrofitManager retrofitManager;
-
+//    public RetrofitManager retrofitManager;
+    public RetrofitManagerNew retrofitManagerNew;
     public NetworkManager(){
-        retrofitManager=new RetrofitManager();
+        retrofitManagerNew=new RetrofitManagerNew();
     }
 
-    public LiveData<DataResponseModel> getDataList(final MutableLiveData<DataResponseModel> responseLiveData){
+    public void getDataList(final MutableLiveData<DataResponseModel> responseLiveData){
 
-        retrofitManager.getApiEndpointService().getData()
+        retrofitManagerNew.getApiEndpointService().getData()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Response<DataResponseModel>>() {
@@ -32,9 +34,11 @@ public class NetworkManager {
                     @Override
                     public void onNext(Response<DataResponseModel> dataResponseModelResponse) {
                         if(dataResponseModelResponse.code() == 200){
+                            Log.v("NetworkManager","200 returned");
                             responseLiveData.postValue(dataResponseModelResponse.body());
                         }
                         else{
+                            Log.v("NetworkManager","error code : "+dataResponseModelResponse.code());
                             responseLiveData.postValue(null);
                         }
                     }
@@ -49,7 +53,5 @@ public class NetworkManager {
                     public void onComplete() {
                     }
                 });
-
-        return responseLiveData;
     }
 }
