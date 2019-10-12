@@ -64,6 +64,7 @@ public class RetrofitManagerNew {
                         .method(original.method(), original.body())
                         .build();
                 Response response = chain.proceed(request);
+                response.body().byteStream().skip(1);
                 return response;
             }
         });

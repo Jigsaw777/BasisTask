@@ -6,6 +6,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.basistask.data.remote.modelClasses.DataResponseModel;
+import com.example.basistask.data.remote.modelClasses.DatumResponseModelClass;
+
+import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -16,11 +19,13 @@ import retrofit2.Response;
 public class NetworkManager {
 //    public RetrofitManager retrofitManager;
     public RetrofitManagerNew retrofitManagerNew;
+    private MutableLiveData<List<DatumResponseModelClass>> dataList=new MutableLiveData<>();
+
     public NetworkManager(){
         retrofitManagerNew=new RetrofitManagerNew();
     }
 
-    public void getDataList(final MutableLiveData<DataResponseModel> responseLiveData){
+    public MutableLiveData<List<DatumResponseModelClass>> getDataList(){
 
         retrofitManagerNew.getApiEndpointService().getData()
                 .subscribeOn(Schedulers.newThread())
@@ -35,17 +40,17 @@ public class NetworkManager {
                     public void onNext(Response<DataResponseModel> dataResponseModelResponse) {
                         if(dataResponseModelResponse.code() == 200){
                             Log.v("NetworkManager","200 returned");
-                            responseLiveData.postValue(dataResponseModelResponse.body());
+                            dataList.postValue(dataResponseModelResponse.body().getData());
                         }
                         else{
                             Log.v("NetworkManager","error code : "+dataResponseModelResponse.code());
-                            responseLiveData.postValue(null);
+                            dataList.postValue(null);
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        responseLiveData.postValue(null);
+                        dataList.postValue(null);
                         e.printStackTrace();
                     }
 
@@ -53,5 +58,7 @@ public class NetworkManager {
                     public void onComplete() {
                     }
                 });
+
+        return dataList;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.basistask.views;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import com.example.basistask.R;
 import com.example.basistask.adapters.RecyclerViewAdapter;
 import com.example.basistask.data.remote.modelClasses.DataResponseModel;
+import com.example.basistask.data.remote.modelClasses.DatumResponseModelClass;
 import com.example.basistask.interfaces.FragmentCommunication;
 import com.example.basistask.viewmodels.SwipeViewModel;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
@@ -26,7 +29,9 @@ import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackView;
 import com.yuyakaido.android.cardstackview.Direction;
 import com.yuyakaido.android.cardstackview.StackFrom;
+import com.yuyakaido.android.cardstackview.SwipeAnimationSetting;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -42,6 +47,7 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
     private CardStackView cardStackView;
     private CardStackLayoutManager cardStackLayoutManager;
     private RecyclerViewAdapter recyclerViewAdapter;
+    ProgressDialog progressDialog;
 
     private int cardPos=0;
 
@@ -78,27 +84,39 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
         cardStackLayoutManager.setVisibleCount(3);
         cardStackLayoutManager.setStackFrom(StackFrom.Top);
         cardStackView.setLayoutManager(cardStackLayoutManager);
+        progressDialog=new ProgressDialog(appContext);
+        progressDialog.setMessage("Loading ..... ");
+
+        accept.setOnClickListener(this);
+        reject.setOnClickListener(this);
+        rewind.setOnClickListener(this);
+        refreshBeg.setOnClickListener(this);
+
         showData();
     }
 
     private void showData(){
-        swipeViewModel.getDataListLiveData().observe(getViewLifecycleOwner(),swipeDataObserver);
-        swipeViewModel.getData();
+        progressDialog.show();
+        swipeViewModel.getData().observe(getViewLifecycleOwner(),swipeDataObserver);
     }
 
     public void assignInterface(FragmentCommunication fragmentCommunication){
         this.fragmentCommunication=fragmentCommunication;
     }
 
-    private Observer<DataResponseModel> swipeDataObserver = new androidx.lifecycle.Observer<DataResponseModel>() {
+    private Observer<List<DatumResponseModelClass>> swipeDataObserver = new androidx.lifecycle.Observer<List<DatumResponseModelClass>>() {
         @Override
-        public void onChanged(DataResponseModel dataResponseModel) {
-            if(dataResponseModel.getData() != null){
-                Toast.makeText(appContext,"Please try again after sometime",Toast.LENGTH_LONG).show();
-                recyclerViewAdapter=new RecyclerViewAdapter(appContext,dataResponseModel.getData());
+        public void onChanged(List<DatumResponseModelClass> list) {
+            if(!list.isEmpty()){
+                progressDialog.dismiss();
+                Log.v("SwipeCardsFrag","Response observed");
+                recyclerViewAdapter=new RecyclerViewAdapter(appContext,list);
+                cardStackView.setAdapter(recyclerViewAdapter);
                 cardPos=cardStackLayoutManager.getTopPosition();
             }
             else {
+//                Log.v("SwipecardsFrag","data : "+dataResponseModel.getData().size());
+                progressDialog.dismiss();
                 Toast.makeText(appContext,"Error fetching data",Toast.LENGTH_LONG).show();
             }
         }
@@ -108,15 +126,23 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.accept_button:
+                SwipeAnimationSetting settingRight = new SwipeAnimationSetting.Builder().setDirection(Direction.Right).build();
+                cardStackLayoutManager.setSwipeAnimationSetting(settingRight);
+                cardStackView.swipe();
                 break;
 
             case R.id.reject_button:
+                SwipeAnimationSetting settingLeft = new SwipeAnimationSetting.Builder().setDirection(Direction.Left).build();
+                cardStackLayoutManager.setSwipeAnimationSetting(settingLeft);
+                cardStackView.swipe();
                 break;
 
             case R.id.rewind_button:
+                cardStackView.rewind();
                 break;
 
             case R.id.refresh_beginning_button:
+                cardStackView.smoothScrollToPosition(0);
                 break;
         }
     }

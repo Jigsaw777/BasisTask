@@ -9,25 +9,26 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.basistask.data.remote.modelClasses.DataResponseModel;
+import com.example.basistask.data.remote.modelClasses.DatumResponseModelClass;
 import com.example.basistask.managers.NetworkManager;
+
+import java.util.List;
 
 public class SwipeViewModel extends AndroidViewModel {
 
-    private MutableLiveData<DataResponseModel> dataList;
     private NetworkManager networkManager;
 
     public SwipeViewModel(@NonNull Application application) {
         super(application);
-        dataList=new MutableLiveData<>();
         networkManager=new NetworkManager();
     }
 
-    public LiveData<DataResponseModel> getDataListLiveData(){
-        return dataList;
-    }
+//    public LiveData<DataResponseModel> getDataListLiveData(){
+//        return dataList;
+//    }
 
-    public void getData(){
+    public MutableLiveData<List<DatumResponseModelClass>> getData(){
         Log.v("SwipeViewModel","getData method");
-        networkManager.getDataList(dataList);
+        return networkManager.getDataList();
     }
 }
