@@ -11,6 +11,7 @@ import com.example.basistask.interfaces.FragmentCommunication;
 import com.example.basistask.utils.Constants;
 import com.example.basistask.viewmodels.SwipeViewModel;
 
+//here main activity is used as container for the 2 fragments
 public class MainActivity extends AppCompatActivity implements FragmentCommunication {
 
     ViewModel viewModel;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCommunica
         initiateSetup();
     }
 
+    //initialise variables and open the welcome fragment
     private void initiateSetup(){
         viewModel= ViewModelProviders.of(this).get(SwipeViewModel.class);
         WelcomeFragment welcomeFragment = new WelcomeFragment();
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCommunica
                 .commitAllowingStateLoss();
     }
 
+    // this method opens fragments according to the fragment names that is passed
     @Override
     public void startFragment(String fragmentName) {
 

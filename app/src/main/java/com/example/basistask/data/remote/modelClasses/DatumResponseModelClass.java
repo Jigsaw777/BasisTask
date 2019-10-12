@@ -3,6 +3,7 @@ package com.example.basistask.data.remote.modelClasses;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+// this class represents each element in the list. Id is the given id and text is the content
 public class DatumResponseModelClass {
     @SerializedName("id")
     @Expose

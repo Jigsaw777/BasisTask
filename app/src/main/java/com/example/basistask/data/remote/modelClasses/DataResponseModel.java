@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
+//this data response model is the model class which contains the list of DatumResponseModelClass
 public class DataResponseModel {
     @SerializedName("data")
     @Expose

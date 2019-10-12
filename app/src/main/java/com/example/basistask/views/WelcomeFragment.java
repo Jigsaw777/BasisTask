@@ -44,6 +44,7 @@ public class WelcomeFragment extends Fragment {
     private void initialiseViews(){
         b=v.findViewById(R.id.button);
 
+        //this button takes us to the swip cards screen
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

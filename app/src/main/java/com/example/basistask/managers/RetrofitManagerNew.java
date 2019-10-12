@@ -36,6 +36,7 @@ public class RetrofitManagerNew {
 
         if (retrofit == null) {
 
+            //this gson builder is used to prevent malformedJsonException
             Gson gson=new GsonBuilder()
                     .setLenient()
                     .create();
@@ -64,6 +65,8 @@ public class RetrofitManagerNew {
                         .method(original.method(), original.body())
                         .build();
                 Response response = chain.proceed(request);
+
+                // here I've parsed the response to ignore the first character,i.e.,'/'.Hence the correct response is received
                 response.body().byteStream().skip(1);
                 return response;
             }

@@ -58,6 +58,7 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
 
     private int dataSize=0;
 
+    //card pos keeps track of the card which is currently visible to the user
     private int cardPos=0;
 
     @Override
@@ -80,6 +81,7 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
         return v;
     }
 
+    // this method is called to initialise variables
     private void initialiseViews(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             swipeViewModel= ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(SwipeViewModel.class);
@@ -89,11 +91,15 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
         rewind=v.findViewById(R.id.rewind_button);
         progressBar=v.findViewById(R.id.progressTracker);
         refreshBeg=v.findViewById(R.id.refresh_beginning_button);
+
+        //card stack view converts the recycler view items to cards
         cardStackView=v.findViewById(R.id.swipe_cards);
         cardStackLayoutManager=new CardStackLayoutManager(appContext,this);
         cardStackLayoutManager.setVisibleCount(3);
         cardStackLayoutManager.setStackFrom(StackFrom.Top);
         cardStackView.setLayoutManager(cardStackLayoutManager);
+
+        //progress dialog is used to show the user that the data is being fetched
         progressDialog=new ProgressDialog(appContext);
         progressDialog.setMessage("Fetching data ..... ");
 
@@ -136,22 +142,27 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+
+            //accept button swipes the card to right
             case R.id.accept_button:
                 SwipeAnimationSetting settingRight = new SwipeAnimationSetting.Builder().setDirection(Right).build();
                 cardStackLayoutManager.setSwipeAnimationSetting(settingRight);
                 cardStackView.swipe();
                 break;
 
+                //reject button swipes the card to left
             case R.id.reject_button:
                 SwipeAnimationSetting settingLeft = new SwipeAnimationSetting.Builder().setDirection(Left).build();
                 cardStackLayoutManager.setSwipeAnimationSetting(settingLeft);
                 cardStackView.swipe();
                 break;
 
+                // rewind button rewinds the last card
             case R.id.rewind_button:
                 cardStackView.rewind();
                 break;
 
+                //refresh button takes us to the first card. it refreshes the card stack
             case R.id.refresh_beginning_button:
                 cardStackView.smoothScrollToPosition(0);
                 setProgress(0);
@@ -194,16 +205,19 @@ public class SwipeCardsFragment extends Fragment implements View.OnClickListener
 
     }
 
+    //initialise the progress bar which tracks the card position
     private void setupProgressBar(int size){
         Log.v("SwipeCardsFragment","size of progressBar : "+size*10);
         progressBar.setMax(size*10);
     }
 
+    //sets the progress of the progressbar
     private void setProgress(int n){
         Log.v("SwipeCardsFragment","setProgress : "+n*10);
         progressBar.setProgress(n*10);
     }
 
+    //this dialog box is shown when all cards are over in the cardstack
     private void showDialogBox(){
         AlertDialog.Builder alertDialogBuilder= new AlertDialog.Builder(appContext);
         alertDialogBuilder.setTitle("Cards are over");

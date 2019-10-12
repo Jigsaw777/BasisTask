@@ -1,7 +1,6 @@
 package com.example.basistask.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +33,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        //set the values of text views according to the given values of the item at position
         holder.heading.setText(dataList.get(position).getId());
         holder.content.setText(dataList.get(position).getText());
     }
